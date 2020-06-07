@@ -217,9 +217,7 @@ class Request
         curl_setopt($ch, CURLOPT_ENCODING, '');
 
         if ($this->parameters->hasPost()) {
-            $fields = json_encode([
-                'request' => $this->parameters->getPost(),
-            ]);
+            $fields = json_encode($this->parameters->getPost());
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
             $this->printDebug('post params', $fields);
@@ -278,11 +276,12 @@ class Request
             } else {
                 throw new Exception('Invalid response body.', $code);
             }
-        } elseif (!isset($result['response'])) {
+        } elseif (!isset($result)) {
             return false;
         }
 
-        return $result['response'];
+//        return $result['response'];
+        return $result['_embedded'] ?? ($result['items'] ?? ($result['response'] ?? $result));
     }
 
     /**

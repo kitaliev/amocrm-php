@@ -30,11 +30,13 @@ class Account extends AbstractModel
      * @param array $parameters Массив параметров к amoCRM API
      * @return array Ответ amoCRM API
      */
-    public function apiCurrent($short = false, $parameters = [])
+    public function apiCurrent($short = false, $parameters = ['with' => 'custom_fields,users,pipelines,groups,note_types,task_types'])
     {
-        $result = $this->getRequest('/private/api/v2/json/accounts/current', $parameters);
+//        $result = $this->getRequest('/private/api/v2/json/accounts/current', $parameters);
+        $result = $this->getRequest('/api/v2/account', $parameters);
 
-        return $short ? $this->getShorted($result['account']) : $result['account'];
+//        return $short ? $this->getShorted($result['account']) : $result['account'];
+        return $result;
     }
 
     /**

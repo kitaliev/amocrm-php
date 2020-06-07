@@ -25,6 +25,11 @@ class CustomField extends AbstractModel
         'disabled',
         'type',
         'element_type',
+        'field_type',
+        'is_editable',
+        'is_deletable',
+        'is_required',
+        'is_visible',
         'origin',
         'enums',
     ];
@@ -85,21 +90,26 @@ class CustomField extends AbstractModel
         }
 
         $parameters = [
-            'fields' => [
+//            'fields' => [
                 'add' => [],
-            ],
+//            ],
         ];
 
         foreach ($fields AS $field) {
-            $parameters['fields']['add'][] = $field->getValues();
+//            $parameters['fields']['add'][] = $field->getValues();
+            $parameters['add'][] = $field->getValues();
         }
 
-        $response = $this->postRequest('/private/api/v2/json/fields/set', $parameters);
+        $response = $this->postRequest('/api/v2/fields', $parameters);
 
         if (isset($response['fields']['add'])) {
             $result = array_map(function ($item) {
                 return $item['id'];
             }, $response['fields']['add']);
+        } elseif (isset($response['items'])) {
+            $result = array_map(function ($item) {
+                return $item['id'];
+            }, $response['items']);
         } else {
             return [];
         }

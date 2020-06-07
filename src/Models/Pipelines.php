@@ -57,18 +57,18 @@ class Pipelines extends AbstractModel
     public function apiList($id = null)
     {
         if ($id !== null) {
-            $this->checkId($id);
+//            $this->checkId($id);
 
-            $response = $this->getRequest('/private/api/v2/json/pipelines/list', [
+            $response = $this->getRequest('/api/v2/pipelines', [
                 'id' => $id
             ]);
 
-            return isset($response['pipelines'][$id]) ? $response['pipelines'][$id] : [];
+            return isset($response['items']) ? $response['items'] : $response;
         }
 
-        $response = $this->getRequest('/private/api/v2/json/pipelines/list');
+        $response = $this->getRequest('/api/v2/pipelines');
 
-        return isset($response['pipelines']) ? $response['pipelines'] : [];
+        return isset($response['items']) ? $response['items'] : $response;
     }
 
     /**
@@ -132,7 +132,7 @@ class Pipelines extends AbstractModel
         $pipeline = $this->getValues();
         $pipeline['id'] = $id;
 
-        $parameters['pipelines']['update'][$id] = $pipeline;
+        $parameters['pipelines']['update'][] = $pipeline;
 
         $response = $this->postRequest('/private/api/v2/json/pipelines/set', $parameters);
 

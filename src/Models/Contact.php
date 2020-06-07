@@ -41,6 +41,7 @@ class Contact extends AbstractModel
         'tags',
         'notes',
         'modified_user_id',
+        'id',
     ];
 
     /**
@@ -56,9 +57,10 @@ class Contact extends AbstractModel
      */
     public function apiList($parameters, $modified = null)
     {
-        $response = $this->getRequest('/private/api/v2/json/contacts/list', $parameters, $modified);
+//        $response = $this->getRequest('/private/api/v2/json/contacts/list', $parameters, $modified);
+        $response = $this->getRequest('/api/v2/contacts/', $parameters, $modified);
 
-        return isset($response['contacts']) ? $response['contacts'] : [];
+        return isset($response['items']) ? $response['items'] : $response;
     }
 
     /**
@@ -76,22 +78,38 @@ class Contact extends AbstractModel
             $contacts = [$this];
         }
 
-        $parameters = [
+/*        $parameters = [
             'contacts' => [
                 'add' => [],
             ],
+        ];*/
+        $parameters = [
+            'add' => [],
         ];
 
         foreach ($contacts AS $contact) {
-            $parameters['contacts']['add'][] = $contact->getValues();
+//            $parameters['contacts']['add'][] = $contact->getValues();
+            $parameters['add'][] = $contact->getValues();
         }
 
-        $response = $this->postRequest('/private/api/v2/json/contacts/set', $parameters);
+//        $response = $this->postRequest('/private/api/v2/json/contacts/set', $parameters);
+        $response = $this->postRequest('/api/v2/contacts', $parameters);
 
+/*        if (isset($response['contacts']['add'])) {
+            $result = array_map(function ($item) {
+                return $item['id'];
+            }, $response['contacts']['add']);
+        } else {
+            return [];
+        }*/
         if (isset($response['contacts']['add'])) {
             $result = array_map(function ($item) {
                 return $item['id'];
             }, $response['contacts']['add']);
+        } elseif (isset($response['items'])) {
+            $result = array_map(function ($item) {
+                return $item['id'];
+            }, $response['items']);
         } else {
             return [];
         }
@@ -115,18 +133,19 @@ class Contact extends AbstractModel
         $this->checkId($id);
 
         $parameters = [
-            'contacts' => [
+//            'contacts' => [
                 'update' => [],
-            ],
+//            ],
         ];
 
         $contact = $this->getValues();
         $contact['id'] = $id;
         $contact['last_modified'] = strtotime($modified);
 
-        $parameters['contacts']['update'][] = $contact;
+//        $parameters['contacts']['update'][] = $contact;
+        $parameters['update'][] = $contact;
 
-        $response = $this->postRequest('/private/api/v2/json/contacts/set', $parameters);
+        $response = $this->postRequest('/api/v2/contacts', $parameters);
 
         return empty($response['contacts']['update']['errors']);
     }

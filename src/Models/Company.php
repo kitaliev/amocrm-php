@@ -52,9 +52,9 @@ class Company extends AbstractModel
      */
     public function apiList($parameters, $modified = null)
     {
-        $response = $this->getRequest('/private/api/v2/json/company/list', $parameters, $modified);
+        $response = $this->getRequest('/api/v2/companies', $parameters, $modified);
 
-        return isset($response['contacts']) ? $response['contacts'] : [];
+        return isset($response['items']) ? $response['items'] : [];
     }
 
     /**
@@ -72,22 +72,26 @@ class Company extends AbstractModel
             $companies = [$this];
         }
 
+//        $parameters = [
+//            'contacts' => [
+//                'add' => [],
+//            ],
+//        ];
         $parameters = [
-            'contacts' => [
-                'add' => [],
-            ],
+            'add' => [],
         ];
 
         foreach ($companies AS $company) {
-            $parameters['contacts']['add'][] = $company->getValues();
+//            $parameters['contacts']['add'][] = $company->getValues();
+            $parameters['add'][] = $company->getValues();
         }
 
-        $response = $this->postRequest('/private/api/v2/json/company/set', $parameters);
+        $response = $this->postRequest('/api/v2/companies', $parameters);
 
-        if (isset($response['contacts']['add'])) {
+        if (isset($response['items'])) {
             $result = array_map(function($item) {
                 return $item['id'];
-            }, $response['contacts']['add']);
+            }, $response['items']);
         } else {
             return [];
         }
@@ -110,20 +114,24 @@ class Company extends AbstractModel
     {
         $this->checkId($id);
 
+//        $parameters = [
+//            'contacts' => [
+//                'update' => [],
+//            ],
+//        ];
         $parameters = [
-            'contacts' => [
-                'update' => [],
-            ],
+            'update' => [],
         ];
 
         $company = $this->getValues();
         $company['id'] = $id;
         $company['last_modified'] = strtotime($modified);
 
-        $parameters['contacts']['update'][] = $company;
+//        $parameters['contacts']['update'][] = $company;
+        $parameters['update'][] = $company;
 
-        $response = $this->postRequest('/private/api/v2/json/company/set', $parameters);
+        $response = $this->postRequest('/api/v2/companies', $parameters);
 
-        return empty($response['contacts']['update']['errors']);
+        return !empty($response['items']);// empty($response['contacts']['update']['errors']);
     }
 }

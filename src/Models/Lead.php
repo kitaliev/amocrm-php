@@ -42,7 +42,8 @@ class Lead extends AbstractModel
         'visitor_uid',
         'notes',
         'modified_user_id',
-        'loss_reason_id',
+        'sale',
+        'contacts_id'
     ];
 
     /**
@@ -58,9 +59,9 @@ class Lead extends AbstractModel
      */
     public function apiList($parameters, $modified = null)
     {
-        $response = $this->getRequest('/private/api/v2/json/leads/list', $parameters, $modified);
+        $response = $this->getRequest('/api/v2/leads', $parameters, $modified);
 
-        return isset($response['leads']) ? $response['leads'] : [];
+        return isset($response['items']) ? $response['items'] : $response;
     }
 
     /**
@@ -78,22 +79,34 @@ class Lead extends AbstractModel
             $leads = [$this];
         }
 
-        $parameters = [
+/*        $parameters = [
             'leads' => [
                 'add' => [],
             ],
+        ];*/
+        $parameters = [
+            'add' => [],
         ];
 
         foreach ($leads AS $lead) {
-            $parameters['leads']['add'][] = $lead->getValues();
+//            $parameters['leads']['add'][] = $lead->getValues();
+            $parameters['add'][] = $lead->getValues();
         }
 
-        $response = $this->postRequest('/private/api/v2/json/leads/set', $parameters);
+//        $response = $this->postRequest('/private/api/v2/json/leads/set', $parameters);
+        $response = $this->postRequest('/api/v2/leads', $parameters);
 
-        if (isset($response['leads']['add'])) {
+/*        if (isset($response['leads']['add'])) {
             $result = array_map(function($item) {
                 return $item['id'];
             }, $response['leads']['add']);
+        } else {
+            return [];
+        }*/
+        if (isset($response['items'])) {
+            $result = array_map(function($item) {
+                return $item['id'];
+            }, $response['items']);
         } else {
             return [];
         }
@@ -117,18 +130,19 @@ class Lead extends AbstractModel
         $this->checkId($id);
 
         $parameters = [
-            'leads' => [
+//            'leads' => [
                 'update' => [],
-            ],
+//            ],
         ];
 
         $lead = $this->getValues();
         $lead['id'] = $id;
-        $lead['last_modified'] = strtotime($modified);
+        $lead['updated_at'] = strtotime($modified);
 
-        $parameters['leads']['update'][] = $lead;
+//        $parameters['leads']['update'][] = $lead;
+        $parameters['update'][] = $lead;
 
-        $response = $this->postRequest('/private/api/v2/json/leads/set', $parameters);
+        $response = $this->postRequest('/api/v2/leads', $parameters);
 
         return empty($response['leads']['update']['errors']);
     }

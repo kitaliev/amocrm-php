@@ -130,13 +130,13 @@ abstract class AbstractModel extends Request implements ArrayAccess, ModelInterf
         ];
 
         if (!is_array($value)) {
-            $values = [[$value, $enum]];
+            $values = [[$value, $enum, $subtype]];
         } else {
             $values = $value;
         }
 
         foreach ($values as $val) {
-            list($value, $enum) = $val;
+            list($value, $enum, $subtype) = $val;
 
             $fieldValue = [
                 'value' => $value,
